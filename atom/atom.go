@@ -1,4 +1,4 @@
-package reactive
+package atom
 
 type Atom[T any] struct {
 	ID      string

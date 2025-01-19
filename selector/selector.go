@@ -1,4 +1,4 @@
-package reactive
+package selector
 
 type Selector[T any] struct {
 	ID      string

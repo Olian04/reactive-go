@@ -3,7 +3,7 @@ default: run
 # Build and run project
 r: run
 run:
-	go run ./main.go
+	go test ./main_test.go
 
 # Create binary for the current architecture
 b: build
