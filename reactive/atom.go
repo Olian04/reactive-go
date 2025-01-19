@@ -1,6 +1,8 @@
 package reactive
 
 import (
+	"sync"
+
 	"github.com/Olian04/reactive-go/reactive/internal"
 	"github.com/google/uuid"
 )
@@ -10,6 +12,7 @@ type Atom[T any] struct {
 	isDirty     bool
 	value       T
 	subscribers map[string]func()
+	m           sync.Mutex
 }
 
 func NewAtom[T any](value T) *Atom[T] {
@@ -18,10 +21,13 @@ func NewAtom[T any](value T) *Atom[T] {
 		value:       value,
 		isDirty:     true,
 		subscribers: make(map[string]func()),
+		m:           sync.Mutex{},
 	}
 }
 
 func (a *Atom[T]) Set(value T) {
+	a.m.Lock()
+	defer a.m.Unlock()
 	a.value = value
 	a.isDirty = true
 	for _, fn := range a.subscribers {
@@ -30,6 +36,8 @@ func (a *Atom[T]) Set(value T) {
 }
 
 func (a *Atom[T]) Get() T {
+	a.m.Lock()
+	defer a.m.Unlock()
 	id, markDirty := internal.AddDependency(a.id, func() bool {
 		return a.isDirty
 	})
