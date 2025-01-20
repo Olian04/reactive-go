@@ -38,8 +38,8 @@ func (a *Atom[T]) Set(value T) {
 func (a *Atom[T]) Get() T {
 	a.m.Lock()
 	defer a.m.Unlock()
-	id, markDirty := internal.AddDependency(a.id, func() bool {
-		return a.isDirty
+	id, markDirty := internal.RegisterAsDependency(func(id string) {
+		a.subscribers[id] = nil
 	})
 	if id != "" {
 		a.subscribers[id] = markDirty

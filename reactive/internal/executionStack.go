@@ -3,7 +3,7 @@ package internal
 import "sync"
 
 type ExecutionFrame struct {
-	AddDependency func(id string, fn func() bool) (string, func())
+	RegisterAsDependency func(removeDependency func(string)) (string, func())
 }
 
 var m sync.Mutex
@@ -25,7 +25,7 @@ func PopExecutionStack() *ExecutionFrame {
 	return frame
 }
 
-func AddDependency(id string, fn func() bool) (string, func()) {
+func RegisterAsDependency(removeDependency func(string)) (string, func()) {
 	m.Lock()
 	defer m.Unlock()
 	frame, err := executionStack.Peek()
@@ -33,5 +33,5 @@ func AddDependency(id string, fn func() bool) (string, func()) {
 		// No frame on the stack, so we don't need to add a dependency
 		return "", func() {}
 	}
-	return frame.AddDependency(id, fn)
+	return frame.RegisterAsDependency(removeDependency)
 }
